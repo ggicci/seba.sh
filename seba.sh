@@ -108,7 +108,17 @@ command::ship() {
 
     for target in "$@"; do
         echo "${IMAGE_TAR_GZ} --> ${target}"
-        scp "${IMAGE_TAR_GZ}" "${target}"
+        host="${target%%:*}"
+        port="${target:${#host}}"
+        port="${port/:/}"
+
+        scp_opts=""
+
+        if [ -n "${port}" ]; then
+            scp_opts="${scp_opts} -P ${port}"
+        fi
+
+        scp "${scp_opts}" "${IMAGE_TAR_GZ}" "${host}"
     done
 
     fn.printf_green "ship successfully!\n"
@@ -178,3 +188,4 @@ main() {
 }
 
 main "$@"
+
