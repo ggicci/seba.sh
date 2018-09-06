@@ -1,6 +1,6 @@
 # Sebastian
 
-Toolset for **docker applications** including build, deploy, etc.
+A tiny tool for **docker applications** including build, deploy, etc.
 
 ## Quick look
 
