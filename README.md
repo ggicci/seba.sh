@@ -2,7 +2,7 @@
 
 A tiny tool for **docker applications** including build, deploy, etc.
 
-## Quick look
+## Quick Look
 
 A sample project:
 
