@@ -20,7 +20,7 @@ Example Dockerfile:
 ```Dockerfile
 FROM alpine:3.7
 
-# seba build will parse build args "COMMIT" and "VERSION"
+# seba build command will pass build args "COMMIT" and "VERSION"
 ARG COMMIT
 ARG VERSION
 
