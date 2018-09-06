@@ -54,6 +54,7 @@ git::get_description() { git describe --tags --always; }
 docker::get_label() { echo "$(docker image inspect -f "{{ .Config.Labels.$1 }}" ${IMAGE_NAME}:latest 2>/dev/null)"; }
 docker::image_exists() { [[ "$(docker images -q "$1" 2>/dev/null)" != "" ]]; }
 
+# Show repository status
 command::status() {
     git::ensure_git
     COMMIT="$(git::get_commit)$(git::get_dirty)"
@@ -70,6 +71,7 @@ command::status() {
     printf "${SHIP_VERSION:-none}\n\n"
 }
 
+# Build docker image
 command::build() {
     command::status
 
@@ -81,6 +83,8 @@ command::build() {
         exit 1
     fi
 
+    # TODO: support a given Dockerfile
+
     docker build \
         --tag "${IMAGE_NAME}:${VERSION}" \
         --tag "${IMAGE_NAME}:latest" \
@@ -91,11 +95,12 @@ command::build() {
     fn.printf_green "build successfully!\n"
 }
 
-command::ship() {
+# Save docker image to local filesystem and archive it to a .tar.gz file
+command::save() {
     command::status
 
     if [[ "${SHIP_VERSION}" == "" ]]; then
-        fn.printf_red "ERROR: no version to ship, run build command first\n"
+        fn.printf_red "ERROR: no version to save or ship, run build command first\n"
         exit 1
     fi
 
@@ -105,25 +110,44 @@ command::ship() {
         docker save "${IMAGE_NAME}:${SHIP_VERSION}" > "${IMAGE_TAR}"
         tar zcf "${IMAGE_TAR_GZ}" "${IMAGE_TAR}"
     fi
+}
 
-    for target in "$@"; do
-        echo "${IMAGE_TAR_GZ} --> ${target}"
-        host="${target%%:*}"
-        port="${target:${#host}}"
-        port="${port/:/}"
+# Save docker image and ship the archived file to remote servers
+#
+# Usage:
+#   seba ship [dest1 [dest2 [...]]]
+#
+# dest:
+#   <user>@<host>[(<port>)]:[<path>]
+#   adm_a@aaa.com:
+#   adm_b@bbb.com:/home/adm_b/
+#   adm_c@ccc.com(22221):/home/adm_c/somewhere.tar.gz
+#   adm_d@ddd.com(222):
+command::ship() {
+    command::save
 
-        scp_opts=""
+    for dest in "$@"; do
+        echo "${IMAGE_TAR_GZ} --> ${dest}"
+        local host="${dest%%:*}"
+        local path="${dest##*:}"
 
-        if [ -n "${port}" ]; then
-            scp_opts="${scp_opts} -P ${port}"
+        local scp_opts=""
+        if [[ "${host}" = *"("*")" ]]; then
+            # with port
+            local port="${host##*\(}"
+            port="${port%%\)*}"
+            host="${host%%\(*}"
+            if [[ "${port}" != "" ]]; then
+                scp_opts="${scp_opts} -P ${port}"
+            fi
         fi
-
-        scp "${scp_opts}" "${IMAGE_TAR_GZ}" "${host}"
+        echo "scp "${scp_opts}" "${IMAGE_TAR_GZ}" "${host}""
     done
 
     fn.printf_green "ship successfully!\n"
 }
 
+# Load archived docker image file to docker images
 command::install() {
     local repogz=$(ls -t ${IMAGE_NAME//\//_}.*.tar.gz 2>/dev/null | head -n 1)
     if [[ "${repogz}" == "" ]]; then
@@ -164,6 +188,7 @@ Usage: seba [command]
 command:
     status      show status
     build       build docker image
+    save        save docker image and archive
     ship        ship docker images
     install     install docker images
 " 1>&2; exit 1;
@@ -179,7 +204,7 @@ main() {
     shift
 
     case "${command}" in
-        status|build|ship|install)
+        status|build|save|ship|install)
             "command::${command}" "$@"
             ;;
         *)
