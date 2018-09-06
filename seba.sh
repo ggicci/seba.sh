@@ -44,7 +44,7 @@ fn.printf_green()  { fn.printf_style "${COLOR_FG}${COLOR_GREEN}" "$@"; }
 
 git::ensure_git() {
     if ! git rev-parse --git-dir &>/dev/null; then
-        echo "not a git repository"
+        fn.printf_red "ERROR: not a git repository\n"
         exit 1
     fi
 }
