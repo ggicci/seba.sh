@@ -82,12 +82,12 @@ Commit: 5b525b9+CHANGES  Version: 2.7.0-31-g5b525b9  Ship: 2.7.0-31-g5b525b9
 
 ### seba build
 
-Build docker image use the default `Dockerfile` and pass two build args:
+Build docker image by using the default `Dockerfile` and pass two build args:
 
 - `COMMIT`: see status "Commit"
 - `VERSION`: see status "Version"
 
-You **must** label them by `commit="${COMMIT}" version="${VERSION}"` in the `Dockerfile` in order to make seba workflow working properly.
+You **must** label them by `commit="${COMMIT}" version="${VERSION}"` in the `Dockerfile` in order to make seba working properly.
 
 ### seba save
 
