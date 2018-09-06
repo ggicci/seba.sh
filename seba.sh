@@ -105,11 +105,15 @@ command::save() {
     fi
 
     if [[ -e "${IMAGE_TAR_GZ}" ]]; then
-        echo "WARNING: image archive file ${IMAGE_TAR_GZ} already exists"
-    else
-        docker save "${IMAGE_NAME}:${SHIP_VERSION}" > "${IMAGE_TAR}"
-        tar zcf "${IMAGE_TAR_GZ}" "${IMAGE_TAR}"
+        fn.printf_yellow "WARNING: image archive file \"${IMAGE_TAR_GZ}\" already exists\n"
+        return
     fi
+
+    docker save "${IMAGE_NAME}:${SHIP_VERSION}" > "${IMAGE_TAR}"
+    tar zcf "${IMAGE_TAR_GZ}" "${IMAGE_TAR}"
+    rm "${IMAGE_TAR}"
+    fn.printf_green "image saved successfully!"
+    printf " [ ${IMAGE_TAR_GZ} ]\n"
 }
 
 # Save docker image and ship the archived file to remote servers
@@ -141,7 +145,8 @@ command::ship() {
                 scp_opts="${scp_opts} -P ${port}"
             fi
         fi
-        echo "scp "${scp_opts}" "${IMAGE_TAR_GZ}" "${host}""
+        # NB: do not quote ${scp_opts}, otherwise it will be treated as a file
+        scp ${scp_opts} "${IMAGE_TAR_GZ}" "${host}:${path}"
     done
 
     fn.printf_green "ship successfully!\n"
