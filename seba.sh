@@ -54,14 +54,25 @@ git::get_description() { git describe --tags --always; }
 docker::get_label() { echo "$(docker image inspect -f "{{ .Config.Labels.$1 }}" ${IMAGE_NAME}:latest 2>/dev/null)"; }
 docker::image_exists() { [[ "$(docker images -q "$1" 2>/dev/null)" != "" ]]; }
 
-# Show repository status
-command::status() {
+env::setup() {
     git::ensure_git
     COMMIT="$(git::get_commit)$(git::get_dirty)"
     VERSION="$(git::get_description)"
     SHIP_VERSION="$(docker::get_label "version")"
-    IMAGE_TAR="${IMAGE_NAME//\//_}.${SHIP_VERSION}.tar"
-    IMAGE_TAR_GZ="${IMAGE_TAR}.gz"
+    IMAGE_TAR=""
+    IMAGE_TAR_GZ=""
+
+    if [[ "${SHIP_VERSION}" != "" ]]; then
+        IMAGE_TAR="${IMAGE_NAME//\//_}.${SHIP_VERSION}.tar"
+    fi
+    if [[ "${SHIP_VERSION}" != "" ]]; then
+        IMAGE_TAR_GZ="${IMAGE_TAR}.gz"
+    fi
+}
+
+# Show repository status
+command::status() {
+    env::setup
 
     fn.printf_yellow "\nCommit: "
     printf "${COMMIT}"
@@ -186,6 +197,12 @@ command::install() {
     fn.printf_green "\ninstall successfully!\n"
 }
 
+# Get value of seba environment variables
+command::env() {
+    env::setup
+    echo "${!1}"
+}
+
 usage() {
     echo "
 Usage: seba [command]
@@ -196,6 +213,11 @@ command:
     save        save docker image and archive
     ship        ship docker images
     install     install docker images
+    env         get value of seba variables
+
+available seba variables:
+    COMMIT, VERSION, SHIP_VERSION, IMAGE_NAME, IMAGE_TAR, IMAGE_TAR_GZ
+
 " 1>&2; exit 1;
 }
 
@@ -209,7 +231,7 @@ main() {
     shift
 
     case "${command}" in
-        status|build|save|ship|install)
+        status|build|save|ship|install|env)
             "command::${command}" "$@"
             ;;
         *)
