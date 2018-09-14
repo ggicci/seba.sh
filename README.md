@@ -2,39 +2,9 @@
 
 A tiny tool for **docker applications** including build, deploy, etc.
 
-## Quick Look
+## Quick Start
 
-A sample project:
-
-```
-helloworld
-├── Dockerfile
-├── Makefile
-├── docker-compose.yml
-├── seba.sh
-└── ... (others)
-```
-
-Example Dockerfile:
-
-```Dockerfile
-FROM alpine:3.7
-
-# seba build command will pass build args "COMMIT" and "VERSION"
-ARG COMMIT
-ARG VERSION
-
-# "commit" and "version" labels are necessary
-LABEL \
-    name="example.com/helloworld" \
-    url="https://github.com/exampledotcom/helloworld.git" \
-    maintainer="..." \
-    commit="${COMMIT}" \
-    version="${VERSION}"
-...
-```
-
-Example Makefile:
+Here is a sample for demonstrating how to integrate `seba.sh` into a `Makefile`:
 
 ```Makefile
 default: build
@@ -42,28 +12,32 @@ default: build
 export IMAGE_NAME=example.com/helloworld
 SEBA := "./seba.sh"
 
+update-seba:
+    curl --retry 3 --silent "https://raw.githubusercontent.com/ggicci/sebastian/master/seba.sh" --output seba.sh
+    chmod u+x seba.sh
+
 status:
-	@$(SEBA) status
+    @$(SEBA) status
 
 build:
-	@$(SEBA) build
+    @$(SEBA) build
 
 ship:
-	@$(SEBA) ship \
-		"ggicci@r01.example.com:/home/ggicci/somewhere" \
-		"adm@r02.example-i.com(2222):"
+    @$(SEBA) ship \
+        "ggicci@r01.example.com:/home/ggicci/somewhere" \
+        "adm@r02.example-i.com(2222):"
 
 install:
-	@$(SEBA) install
+    @$(SEBA) install
 
 deploy:
-	docker-compose down
-	@$(SEBA) install
-	docker-compose up --no-start
-	docker-compose start
+    docker-compose down
+    @$(SEBA) install
+    docker-compose up --no-start
+    docker-compose start
 
 logs:
-	docker-compose logs --tail=50 -f
+    docker-compose logs --tail=50 -f
 ```
 
 ## Command List
@@ -102,7 +76,24 @@ Build docker image by using the default `Dockerfile` and pass two build args:
 - `COMMIT`: see status "Commit"
 - `VERSION`: see status "Version"
 
-You **must** label them by `commit="${COMMIT}" version="${VERSION}"` in the `Dockerfile` in order to make seba working properly.
+You **must** label them by `commit="${COMMIT}" version="${VERSION}"` in the `Dockerfile` in order to make seba working properly. Here is Dockerfile example:
+
+```Dockerfile
+FROM alpine:3.7
+
+# seba build command will pass build args "COMMIT" and "VERSION"
+ARG COMMIT
+ARG VERSION
+
+# "commit" and "version" labels are **necessary**
+LABEL \
+    name="example.com/helloworld" \
+    url="https://github.com/exampledotcom/helloworld.git" \
+    maintainer="..." \
+    commit="${COMMIT}" \
+    version="${VERSION}"
+...
+```
 
 ### seba save
 
