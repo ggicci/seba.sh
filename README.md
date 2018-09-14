@@ -68,6 +68,21 @@ logs:
 
 ## Command List
 
+```bash
+Usage: seba [command]
+
+command:
+    status      show status
+    build       build docker image
+    save        save docker image and archive
+    ship        ship docker images
+    install     install docker images
+    env         get value of seba variables
+
+available seba variables:
+    COMMIT, VERSION, SHIP_VERSION, IMAGE_NAME, IMAGE_TAR, IMAGE_TAR_GZ
+```
+
 ### seba status
 
 Show status of the current git repo. Sample output:
@@ -100,3 +115,7 @@ Save and then scp the `.tar.gz` file to remote servers.
 ### seba install
 
 Load docker images from `.tar.gz` file to docker.
+
+### seba env
+
+Get value of a variable which is used in the seba script. e.g. `seba env VERSION` will echo the current version number.
