@@ -1,6 +1,6 @@
 # Sebastian
 
-Build and ship a docker image with out registry.
+Build and ship a docker image without registry.
 
 It's a script designed mostly for individual users and teams with small-scale IT infrastructure. We haven't got a private docker image registry. So we just build docker images on our development machines and scp them to remote servers for deployment.
 
