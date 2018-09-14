@@ -25,26 +25,26 @@ COLOR_BOLD='1'
 COLOR_UNDERLINE='4'
 COLOR_BLINK='5'
 
-fn.is_gnu_command() { [[ -n "$("$1" --version 2>/dev/null | grep "GNU")" ]]; }
+util::is_gnu_command() { [[ -n "$("$1" --version 2>/dev/null | grep "GNU")" ]]; }
 
 GNU_GREP="grep"
-if ! fn.is_gnu_command "grep"; then
+if ! util::is_gnu_command "grep"; then
     GNU_GREP="ggrep"
 fi
 
-fn.printf_style() {
+util::printf_style() {
     printf "${COLOR_CODE}$1m"
     shift 1
     printf "${@}"
     printf "${COLOR_CODE}${COLOR_NC}m"
 }
-fn.printf_yellow() { fn.printf_style "${COLOR_FG}${COLOR_YELLOW}" "$@"; }
-fn.printf_red()    { fn.printf_style "${COLOR_FG}${COLOR_RED}" "$@"; }
-fn.printf_green()  { fn.printf_style "${COLOR_FG}${COLOR_GREEN}" "$@"; }
+util::printf_yellow() { util::printf_style "${COLOR_FG}${COLOR_YELLOW}" "$@"; }
+util::printf_red()    { util::printf_style "${COLOR_FG}${COLOR_RED}" "$@"; }
+util::printf_green()  { util::printf_style "${COLOR_FG}${COLOR_GREEN}" "$@"; }
 
 git::ensure_git() {
     if ! git rev-parse --git-dir &>/dev/null; then
-        fn.printf_red "ERROR: not a git repository\n"
+        util::printf_red "ERROR: not a git repository\n"
         exit 1
     fi
 }
@@ -74,11 +74,11 @@ env::setup() {
 command::status() {
     env::setup
 
-    fn.printf_yellow "\nCommit: "
+    util::printf_yellow "\nCommit: "
     printf "${COMMIT}"
-    fn.printf_yellow "  Version: "
+    util::printf_yellow "  Version: "
     printf "${VERSION}"
-    fn.printf_yellow "  Ship: "
+    util::printf_yellow "  Ship: "
     printf "${SHIP_VERSION:-none}\n\n"
 }
 
@@ -87,7 +87,7 @@ command::build() {
     command::status
 
     if docker::image_exists "${IMAGE_NAME}:${VERSION}"; then
-        fn.printf_red "ERROR: image ${IMAGE_NAME}:${VERSION} already exists, skip\n"
+        util::printf_red "ERROR: image ${IMAGE_NAME}:${VERSION} already exists, skip\n"
         echo
         docker images "${IMAGE_NAME}"
         echo
@@ -103,7 +103,7 @@ command::build() {
         --build-arg VERSION=${VERSION} \
         .
 
-    fn.printf_green "build successfully!\n"
+    util::printf_green "build successfully!\n"
 }
 
 # Save docker image to local filesystem and archive it to a .tar.gz file
@@ -111,19 +111,19 @@ command::save() {
     command::status
 
     if [[ "${SHIP_VERSION}" == "" ]]; then
-        fn.printf_red "ERROR: no version to save or ship, run build command first\n"
+        util::printf_red "ERROR: no version to save or ship, run build command first\n"
         exit 1
     fi
 
     if [[ -e "${IMAGE_TAR_GZ}" ]]; then
-        fn.printf_yellow "WARNING: image archive file \"${IMAGE_TAR_GZ}\" already exists\n"
+        util::printf_yellow "WARNING: image archive file \"${IMAGE_TAR_GZ}\" already exists\n"
         return
     fi
 
     docker save "${IMAGE_NAME}:${SHIP_VERSION}" > "${IMAGE_TAR}"
     tar zcf "${IMAGE_TAR_GZ}" "${IMAGE_TAR}"
     rm "${IMAGE_TAR}"
-    fn.printf_green "image saved successfully!"
+    util::printf_green "image saved successfully!"
     printf " [ ${IMAGE_TAR_GZ} ]\n"
 }
 
@@ -160,7 +160,7 @@ command::ship() {
         scp ${scp_opts} "${IMAGE_TAR_GZ}" "${host}:${path}"
     done
 
-    fn.printf_green "ship successfully!\n"
+    util::printf_green "ship successfully!\n"
 }
 
 # Load archived docker image file to docker images
@@ -181,7 +181,7 @@ command::install() {
 
     local image="$(tar xfO "${repotar}" manifest.json | ${GNU_GREP} -Po '"RepoTags":\[.*?\]' | cut -d'"' -f 4)"
     printf "load image: "
-    fn.printf_yellow "${image}\n"
+    util::printf_yellow "${image}\n"
 
     if docker::image_exists "${image}"; then
         echo "WARNING: image ${image} already loaded, skip"
@@ -194,7 +194,7 @@ command::install() {
     echo "tag latest"
     docker tag "${image}" "${image_latest}"
     echo; docker images ${IMAGE_NAME}
-    fn.printf_green "\ninstall successfully!\n"
+    util::printf_green "\ninstall successfully!\n"
 }
 
 # Get value of seba environment variables
