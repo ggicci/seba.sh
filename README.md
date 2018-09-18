@@ -25,7 +25,7 @@ build:
     @$(SEBA) build
 
 ship:
-    @$(SEBA) ship \
+    @$(SEBA) ship --extra $(SEBA) Makefile --to \
         "ggicci@r01.example.com:/home/ggicci/somewhere" \
         "adm@r02.example-i.com(2222):"
 
