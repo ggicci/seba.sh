@@ -44,7 +44,7 @@ util::printf_green()  { util::printf_style "${COLOR_FG}${COLOR_GREEN}" "$@"; }
 
 git::ensure_git() {
     if ! git rev-parse --git-dir &>/dev/null; then
-        util::printf_red "ERROR: not a git repository\n"
+        >&2 util::printf_red "ERROR: not a git repository\n"
         exit 1
     fi
 }
@@ -87,7 +87,7 @@ command::build() {
     command::status
 
     if docker::image_exists "${IMAGE_NAME}:${VERSION}"; then
-        util::printf_red "ERROR: image ${IMAGE_NAME}:${VERSION} already exists, skip\n"
+        >&2 util::printf_red "ERROR: image ${IMAGE_NAME}:${VERSION} already exists, skip\n"
         echo
         docker images "${IMAGE_NAME}"
         echo
@@ -111,7 +111,7 @@ command::save() {
     command::status
 
     if [[ "${SHIP_VERSION}" == "" ]]; then
-        util::printf_red "ERROR: no version to save or ship, run build command first\n"
+        >&2 util::printf_red "ERROR: no version to save or ship, run build command first\n"
         exit 1
     fi
 
@@ -130,7 +130,7 @@ command::save() {
 # Save docker image and ship the archived file to remote servers
 #
 # Usage:
-#   seba ship [dest1 [dest2 [...]]]
+#   seba ship -t/--to <dest1 [dest2 [dest3 [...]]]> [-e/--extra <file1 [file2 [file3 [...]]]>]
 #
 # dest:
 #   <user>@<host>[(<port>)]:[<path>]
@@ -139,9 +139,44 @@ command::save() {
 #   adm_c@ccc.com(22221):/home/adm_c/somewhere.tar.gz
 #   adm_d@ddd.com(222):
 command::ship() {
+    local extra=()
+    local dests=()
+    local current_opt=""
+
+    while :; do
+        case ${1:-notset} in
+            -e|--extra)
+                current_opt="extra"
+                ;;
+            -t|--to)
+                current_opt="to"
+                ;;
+            notset)
+                break
+                ;;
+            *)
+                case ${current_opt} in
+                    extra)
+                        extra+=("$1")
+                        ;;
+                    to)
+                        dests+=("$1")
+                        ;;
+                esac
+                ;;
+        esac
+        shift
+    done
+
+    if [[ ${#dests[@]} -eq 0 ]]; then
+        >&2 util::printf_red 'ERROR: "-t/--to" required\n'
+        exit 1
+    fi
+
+    # Archive image to local file
     command::save
 
-    for dest in "$@"; do
+    for dest in "${dests[@]}"; do
         echo "${IMAGE_TAR_GZ} --> ${dest}"
         local host="${dest%%:*}"
         local path="${dest##*:}"
@@ -157,7 +192,7 @@ command::ship() {
             fi
         fi
         # NB: do not quote ${scp_opts}, otherwise it will be treated as a file
-        scp ${scp_opts} "${IMAGE_TAR_GZ}" "${host}:${path}"
+        echo "scp ${scp_opts} "${IMAGE_TAR_GZ}" "${extra[@]}" "${host}:${path}""
     done
 
     util::printf_green "ship successfully!\n"
