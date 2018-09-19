@@ -192,7 +192,7 @@ command::ship() {
             fi
         fi
         # NB: do not quote ${scp_opts}, otherwise it will be treated as a file
-        echo "scp ${scp_opts} "${IMAGE_TAR_GZ}" "${extra[@]}" "${host}:${path}""
+        scp ${scp_opts} "${IMAGE_TAR_GZ}" "${extra[@]}" "${host}:${path}"
     done
 
     util::printf_green "ship successfully!\n"
