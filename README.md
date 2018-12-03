@@ -6,12 +6,24 @@ It's a script designed mostly for individual users and teams with small-scale IT
 
 ## Quick Start
 
-Here is a sample for demonstrating how to integrate `seba.sh` into a `Makefile`:
+```shell
+APP_NAME=com.example.helloworld IMAGE_NAME=example/helloworld ./seba.sh <sub_command>
+```
+
+Good practice for the naming conventions:
+
+- APP\_NAME: `{reverse_domain}.{app_name}`, e.g. `org.example.helloworld`, `com.github.ggicci.sebastian`;
+- IMAGE\_NAME: `{user_or_org_name}/{app_name}`, e.g. `example/helloworld`, `ggicci/sebastian`.
+
+
+### Integrate with Makefile
 
 ```Makefile
 default: build
 
-export IMAGE_NAME=example.com/helloworld
+export APP_NAME=org.example/helloworld
+export IMAGE_NAME=example/helloworld
+
 SEBA := "./seba.sh"
 
 update-seba:
