@@ -280,9 +280,9 @@ ARG ${ARG_NAME_IMAGE_VERSION}
 ARG ${ARG_NAME_IMAGE_REVISION}
 
 LABEL \\
-  ${APP_NAME}.image.created=\"\${${ARG_NAME_IMAGE_CREATED}\" \\
-  ${APP_NAME}.image.version=\"\${${ARG_NAME_IMAGE_VERSION}\" \\
-  ${APP_NAME}.image.revision=\"\${${ARG_NAME_IMAGE_REVISION}\" \\
+  ${APP_NAME}.image.created=\"\${${ARG_NAME_IMAGE_CREATED}}\" \\
+  ${APP_NAME}.image.version=\"\${${ARG_NAME_IMAGE_VERSION}}\" \\
+  ${APP_NAME}.image.revision=\"\${${ARG_NAME_IMAGE_REVISION}}\" \\
   ${APP_NAME}.image.authors=\"<contact details of the people or organization responsible for the image>\" \\
   ${APP_NAME}.image.url=\"<URL to find more information on the image>\" \\
   ${APP_NAME}.image.documentation=\"<URL to get documentation on the image>\" \\
