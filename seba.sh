@@ -17,6 +17,13 @@ if [[ "${IMAGE_NAME:-notset}" == "notset" ]]; then
     exit 1
 fi
 
+ARG_NAME_IMAGE_CREATED="${APP_NAME//\./_}_image_created"
+ARG_NAME_IMAGE_VERSION="${APP_NAME//\./_}_image_version"
+ARG_NAME_IMAGE_REVISION="${APP_NAME//\./_}_image_revision"
+
+ARG_NAME_IMAGE_CREATED="${ARG_NAME_IMAGE_CREATED//-/_}"
+ARG_NAME_IMAGE_VERSION="${ARG_NAME_IMAGE_VERSION//-/_}"
+ARG_NAME_IMAGE_REVISION="${ARG_NAME_IMAGE_REVISION//-/_}"
 
 COLOR_BLACK='0'
 COLOR_RED='1'
@@ -121,9 +128,9 @@ command::build() {
     docker build \
         --tag "${IMAGE_NAME}:${VERSION}" \
         --tag "${IMAGE_NAME}:latest" \
-        --build-arg ${APP_NAME//\./_}_image_created="$(util::rfc3339_now)" \
-        --build-arg ${APP_NAME//\./_}_image_version="${VERSION}" \
-        --build-arg ${APP_NAME//\./_}_image_revision="${COMMIT}" \
+        --build-arg ${ARG_NAME_IMAGE_CREATED}="$(util::rfc3339_now)" \
+        --build-arg ${ARG_NAME_IMAGE_VERSION}="${VERSION}" \
+        --build-arg ${ARG_NAME_IMAGE_REVISION}="${COMMIT}" \
         .
 
     util::printf_green "build successfully!\n"
@@ -268,14 +275,14 @@ command::dockerfile() {
 # 2. Edit contents wrapped by '<>' to make your docker images better than 90% of existing ones
 FROM <IMAGE>
 
-ARG ${APP_NAME//\./_}_image_created
-ARG ${APP_NAME//\./_}_image_version
-ARG ${APP_NAME//\./_}_image_revision
+ARG ${ARG_NAME_IMAGE_CREATED}
+ARG ${ARG_NAME_IMAGE_VERSION}
+ARG ${ARG_NAME_IMAGE_REVISION}
 
 LABEL \\
-  ${APP_NAME}.image.created=\"\${${APP_NAME//\./_}_image_created}\" \\
-  ${APP_NAME}.image.version=\"\${${APP_NAME//\./_}_image_version}\" \\
-  ${APP_NAME}.image.revision=\"\${${APP_NAME//\./_}_image_revision}\" \\
+  ${APP_NAME}.image.created=\"\${${ARG_NAME_IMAGE_CREATED}\" \\
+  ${APP_NAME}.image.version=\"\${${ARG_NAME_IMAGE_VERSION}\" \\
+  ${APP_NAME}.image.revision=\"\${${ARG_NAME_IMAGE_REVISION}\" \\
   ${APP_NAME}.image.authors=\"<contact details of the people or organization responsible for the image>\" \\
   ${APP_NAME}.image.url=\"<URL to find more information on the image>\" \\
   ${APP_NAME}.image.documentation=\"<URL to get documentation on the image>\" \\
