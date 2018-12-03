@@ -292,7 +292,7 @@ command:
     ship        ship docker images
     install     install docker images
     env         get value of seba variables
-    dockerfile  generate Dockerfile.seba.template
+    dockerfile  show a template Dockerfile
 
 available seba variables:
     COMMIT, VERSION, SHIP_VERSION, IMAGE_NAME, IMAGE_TAR, IMAGE_TAR_GZ
