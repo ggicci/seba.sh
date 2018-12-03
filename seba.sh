@@ -270,12 +270,12 @@ FROM <IMAGE>
 
 ARG ${APP_NAME//\./_}_image_created
 ARG ${APP_NAME//\./_}_image_version
-ARG ${APP_NAME//\./_}_image_commit
+ARG ${APP_NAME//\./_}_image_revision
 
 LABEL \\
   ${APP_NAME}.image.created=\"\${${APP_NAME//\./_}_image_created}\" \\
   ${APP_NAME}.image.version=\"\${${APP_NAME//\./_}_image_version}\" \\
-  ${APP_NAME}.image.revision=\"\${${APP_NAME//\./_}_image_commit}\" \\
+  ${APP_NAME}.image.revision=\"\${${APP_NAME//\./_}_image_revision}\" \\
   ${APP_NAME}.image.authors=\"<contact details of the people or organization responsible for the image>\" \\
   ${APP_NAME}.image.url=\"<URL to find more information on the image>\" \\
   ${APP_NAME}.image.documentation=\"<URL to get documentation on the image>\" \\
