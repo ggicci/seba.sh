@@ -111,13 +111,19 @@ command::build() {
         exit 1
     fi
 
+    # Check Dockerfile
+    if [[ "$(grep "${APP_NAME//\./_}_image_version" Dockerfile 2>/dev/null)" == "" ]]; then
+        >&2 util::printf_red "ERROR: please include the content of command \"seba.sh dockerfile\" in your Dockerfile"
+        echo
+        exit 1
+    fi
 
     docker build \
         --tag "${IMAGE_NAME}:${VERSION}" \
         --tag "${IMAGE_NAME}:latest" \
-        --build-arg CREATED_AT="$(util::rfc3339_now)" \
-        --build-arg COMMIT="${COMMIT}" \
-        --build-arg VERSION="${VERSION}" \
+        --build-arg ${APP_NAME//\./_}_image_created="$(util::rfc3339_now)" \
+        --build-arg ${APP_NAME//\./_}_image_version="${VERSION}" \
+        --build-arg ${APP_NAME//\./_}_image_revision="${COMMIT}" \
         .
 
     util::printf_green "build successfully!\n"
@@ -262,18 +268,18 @@ command::dockerfile() {
 # 2. Edit contents wrapped by '<>' to make your docker images better than 90% of existing ones
 FROM <IMAGE>
 
-ARG CREATED_AT
-ARG COMMIT
-ARG VERSION
+ARG ${APP_NAME//\./_}_image_created
+ARG ${APP_NAME//\./_}_image_version
+ARG ${APP_NAME//\./_}_image_revision
 
 LABEL \\
-  ${APP_NAME}.image.created=\"\${CREATED_AT}\" \\
+  ${APP_NAME}.image.created=\"\${${APP_NAME//\./_}_image_created}\" \\
+  ${APP_NAME}.image.version=\"\${${APP_NAME//\./_}_image_version}\" \\
+  ${APP_NAME}.image.revision=\"\${${APP_NAME//\./_}_image_revision}\" \\
   ${APP_NAME}.image.authors=\"<contact details of the people or organization responsible for the image>\" \\
   ${APP_NAME}.image.url=\"<URL to find more information on the image>\" \\
   ${APP_NAME}.image.documentation=\"<URL to get documentation on the image>\" \\
   ${APP_NAME}.image.source=\"<URL to get source code for building the image>\" \\
-  ${APP_NAME}.image.version=\"\${VERSION}\" \\
-  ${APP_NAME}.image.revision=\"\${COMMIT}\" \\
   ${APP_NAME}.image.vendor=\"<Name of the distributing entity, organization or individual>\" \\
   ${APP_NAME}.image.licenses=\"<License\(s\) under which contained software is distributed as an SPDX License Expression>\" \\
   ${APP_NAME}.image.title=\"<Human-readable title of the image>\" \\
