@@ -54,6 +54,7 @@ command:
     ship        ship docker images
     install     install docker images
     env         get value of seba variables
+    dockerfile  show a template Dockerfile
 
 available seba variables:
     COMMIT, VERSION, SHIP_VERSION, IMAGE_NAME, IMAGE_TAR, IMAGE_TAR_GZ
@@ -73,29 +74,15 @@ Commit: 5b525b9+CHANGES  Version: 2.7.0-31-g5b525b9  Ship: 2.7.0-31-g5b525b9
 
 ### seba build
 
-Build docker image by using the default `Dockerfile` and pass two build args:
+Build docker image by using the default `Dockerfile` (run `seba dockerfile` to see a template of the Dockerfile) and pass three build args:
 
+- `CREATED_AT`: current datetime in RFC3339 format
 - `COMMIT`: see status "Commit"
 - `VERSION`: see status "Version"
 
-You **must** label them by `commit="${COMMIT}" version="${VERSION}"` in the `Dockerfile` in order to make seba working properly. Here is Dockerfile example:
+### seba dockerfile
 
-```Dockerfile
-FROM alpine:3.7
-
-# seba build command will pass build args "COMMIT" and "VERSION"
-ARG COMMIT
-ARG VERSION
-
-# "commit" and "version" labels are **necessary**
-LABEL \
-    name="example.com/helloworld" \
-    url="https://github.com/exampledotcom/helloworld.git" \
-    maintainer="..." \
-    commit="${COMMIT}" \
-    version="${VERSION}"
-...
-```
+Show a Dockerfile template. **Your Dockefile HAVE TO include the contents from this template.**
 
 ### seba save
 
