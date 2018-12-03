@@ -119,7 +119,7 @@ command::build() {
     fi
 
     # Check Dockerfile
-    if [[ "$(grep "${APP_NAME//\./_}_image_version" Dockerfile 2>/dev/null)" == "" ]]; then
+    if [[ "$(grep "${ARG_NAME_IMAGE_VERSION}" Dockerfile 2>/dev/null)" == "" ]]; then
         >&2 util::printf_red "ERROR: please include the content of command \"seba.sh dockerfile\" in your Dockerfile"
         echo
         exit 1
