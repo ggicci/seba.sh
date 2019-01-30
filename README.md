@@ -7,21 +7,24 @@ It's a script designed mostly for individual users and teams with small-scale IT
 ## Quick Start
 
 ```shell
-APP_NAME=com.example.helloworld IMAGE_NAME=example/helloworld ./seba.sh <sub_command>
+export APP_NAME=com.example.helloworld
+export IMAGE_NAME=example/helloworld
+./seba.sh dockerfile >> Dockerfile
+# then edit your Dockerfile
+./seba.sh build # buid your docker image
 ```
 
 Good practice for the naming conventions:
 
-- APP\_NAME: `{reverse_domain}.{app_name}`, e.g. `org.example.helloworld`, `com.github.ggicci.sebastian`;
-- IMAGE\_NAME: `{user_or_org_name}/{app_name}`, e.g. `example/helloworld`, `ggicci/sebastian`.
-
+- APP_NAME: `{reverse_domain}.{app_name}`, e.g. `org.example.helloworld`, `com.github.ggicci.sebastian`;
+- IMAGE_NAME: `{user_or_org_name}/{app_name}`, e.g. `example/helloworld`, `ggicci/sebastian`.
 
 ### Integrate with Makefile
 
 ```Makefile
 default: build
 
-export APP_NAME=org.example/helloworld
+export APP_NAME=org.example.helloworld
 export IMAGE_NAME=example/helloworld
 
 SEBA := "./seba.sh"
