@@ -1,4 +1,4 @@
-# Sebastian
+# Seba
 
 Build and ship a docker image without registry.
 
